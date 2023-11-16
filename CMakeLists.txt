@@ -15,5 +15,5 @@ set(GLM_INCLUDE_DIR "C:/Users/50242/Documents/Universidad/TercerAño/GraficasCom
 include_directories(${SDL2_INCLUDE_DIR} ${GLM_INCLUDE_DIR})
 link_directories(${SDL2_LIB_DIR})
 
-add_executable(GC_Proyecto3_Raytracing main.cpp)
+add_executable(GC_Proyecto3_Raytracing main.cpp camera.cpp print.h sphere.cpp)
 target_link_libraries(GC_Proyecto3_Raytracing SDL2main SDL2)
