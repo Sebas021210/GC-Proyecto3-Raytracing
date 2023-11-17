@@ -1,17 +1,14 @@
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
-#include <cstdlib>
-#include "glm/ext/quaternion_geometric.hpp"
 #include "glm/geometric.hpp"
 #include <string>
-#include "glm/glm.hpp"
 #include <vector>
 #include "print.h"
 #include "color.h"
 #include "intersect.h"
 #include "object.h"
-#include "sphere.h"
+#include "cube.h"
 #include "light.h"
 #include "camera.h"
 
@@ -25,7 +22,6 @@ SDL_Renderer* renderer;
 std::vector<Object*> objects;
 Light light(glm::vec3(-1.0, 0, 10), 1.5f, Color(255, 255, 255));
 Camera camera(glm::vec3(0.0, 0.0, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 10.0f);
-
 
 void point(glm::vec2 position, Color color) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
@@ -64,20 +60,15 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
         return Color(173, 216, 230);
     }
 
-
     glm::vec3 lightDir = glm::normalize(light.position - intersect.point);
     glm::vec3 viewDir = glm::normalize(rayOrigin - intersect.point);
     glm::vec3 reflectDir = glm::reflect(-lightDir, intersect.normal);
 
     float shadowIntensity = castShadow(intersect.point, lightDir, hitObject);
-
     float diffuseLightIntensity = std::max(0.0f, glm::dot(intersect.normal, lightDir));
     float specReflection = glm::dot(viewDir, reflectDir);
-
     Material mat = hitObject->material;
-
     float specLightIntensity = std::pow(std::max(0.0f, glm::dot(viewDir, reflectDir)), mat.specularCoefficient);
-
 
     Color reflectedColor(0.0f, 0.0f, 0.0f);
     if (mat.reflectivity > 0) {
@@ -92,8 +83,6 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
         refractedColor = castRay(origin, refractDir, recursion + 1);
     }
 
-
-
     Color diffuseLight = mat.diffuse * light.intensity * diffuseLightIntensity * mat.albedo * shadowIntensity;
     Color specularLight = light.color * light.intensity * specLightIntensity * mat.specularAlbedo * shadowIntensity;
     Color color = (diffuseLight + specularLight) * (1.0f - mat.reflectivity - mat.transparency) + reflectedColor * mat.reflectivity + refractedColor * mat.transparency;
@@ -101,77 +90,120 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
 }
 
 void setUp() {
-    Material rubber = {
-            Color(80, 0, 0),   // diffuse
-            0.9,
-            0.1,
+    Material stoneMaterial = {
+            Color(125, 125, 125),
+            0.8,
+            0.5,
+            25.0f,
+            0.1f,
+            0.0f
+    };
+
+    Material grassMaterial = {
+            Color(0, 128, 0),
+            0.7,
+            0.3,
             10.0f,
             0.0f,
             0.0f
     };
 
-    Material ivory = {
-            Color(100, 100, 80),
-            0.5,
-            0.5,
+    Material dirtMaterial = {
+            Color(139, 69, 19),
+            0.6,
+            0.2,
+            5.0f,
+            0.0f,
+            0.0f
+    };
+
+    Material woodMaterial = {
+            Color(139, 69, 19),
+            0.7,
+            0.3,
+            20.0f,
+            0.0f,
+            0.0f
+    };
+
+    Material glassMaterial = {
+            Color(173, 216, 230),
+            0.0f,
+            0.1f,
             50.0f,
-            0.4f,
+            0.5f,
+            0.9f
+    };
+
+    Material brickMaterial = {
+            Color(178, 34, 34),
+            0.8,
+            0.3,
+            15.0f,
+            0.0f,
             0.0f
     };
 
-    Material mirror = {
-            Color(255, 255, 255),
-            0.0f,
-            10.0f,
-            1425.0f,
-            0.9f,
-            0.0f
-    };
+    //objects.push_back(new Cube(glm::vec3(0.0f, -1.0f, 0.0f), 1.0f, stoneMaterial, "stone"));
+    //objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, grassMaterial, "grass"));
+    //objects.push_back(new Cube(glm::vec3(1.5f, 0.0f, 0.0f), 1.0f, dirtMaterial, "dirt"));
+    //objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -1.5f), 1.0f, woodMaterial, "wood"));
+    //objects.push_back(new Cube(glm::vec3(1.5f, 0.0f, -1.5f), 1.0f, glassMaterial, "glass"));
+    //objects.push_back(new Cube(glm::vec3(2.5f, 0.0f, -1.5f), 1.0f, brickMaterial, "brick"));
 
-    Material glass = {
-            Color(255, 255, 255),
-            0.0f,
-            10.0f,
-            1425.0f,
-            0.2f,
-            1.0f,
-    };
-    objects.push_back(new Sphere(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, rubber));
-    objects.push_back(new Sphere(glm::vec3(-1.0f, 0.0f, -4.0f), 1.0f, ivory));
-    objects.push_back(new Sphere(glm::vec3(1.0f, 0.0f, -4.0f), 1.0f, mirror));
-    objects.push_back(new Sphere(glm::vec3(0.0f, 1.0f, -3.0f), 1.0f, glass));
+    //Tree
+    objects.push_back(new Cube(glm::vec3(2.0f, -1.0f, -1.5f), 1.0f, woodMaterial, "wood"));
+    objects.push_back(new Cube(glm::vec3(2.0f, -0.5f, -1.5f), 1.0f, woodMaterial, "wood"));
+    objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -1.5f), 1.0f, woodMaterial, "wood"));
+    objects.push_back(new Cube(glm::vec3(2.0f, 0.5f, -1.5f), 1.0f, woodMaterial, "wood"));
+    objects.push_back(new Cube(glm::vec3(2.0f, 1.5f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(2.0f, 2.0f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(1.3f, 1.5f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(2.7f, 1.5f, -1.5f), 1.0f, grassMaterial, "grass"));
+
+    //House
+    objects.push_back(new Cube(glm::vec3(-1.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-2.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    //objects.push_back(new Cube(glm::vec3(-3.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-4.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    //objects.push_back(new Cube(glm::vec3(-3.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-4.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-4.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
 }
 
 void render() {
     float fov = 3.1415/3;
     for (int y = 0; y < SCREEN_HEIGHT; y++) {
         for (int x = 0; x < SCREEN_WIDTH; x++) {
-            /*
-            float random_value = static_cast<float>(std::rand())/static_cast<float>(RAND_MAX);
-            if (random_value < 0.0) {
-                continue;
-            }
-            */
-
-
             float screenX = (2.0f * (x + 0.5f)) / SCREEN_WIDTH - 1.0f;
             float screenY = -(2.0f * (y + 0.5f)) / SCREEN_HEIGHT + 1.0f;
             screenX *= ASPECT_RATIO;
             screenX *= tan(fov/2.0f);
             screenY *= tan(fov/2.0f);
 
-
             glm::vec3 cameraDir = glm::normalize(camera.target - camera.position);
-
             glm::vec3 cameraX = glm::normalize(glm::cross(cameraDir, camera.up));
             glm::vec3 cameraY = glm::normalize(glm::cross(cameraX, cameraDir));
             glm::vec3 rayDirection = glm::normalize(
                     cameraDir + cameraX * screenX + cameraY * screenY
             );
 
+            // Original ray casting
             Color pixelColor = castRay(camera.position, rayDirection);
-            /* Color pixelColor = castRay(glm::vec3(0,0,20), glm::normalize(glm::vec3(screenX, screenY, -1.0f))); */
 
+            // New code for rendering the nearest object
+            for (const auto& object : objects) {
+                Intersect intersect = object->rayIntersect(camera.position, rayDirection);
+                if (intersect.isIntersecting) {
+                    pixelColor = object->material.diffuse;  // Use the cube's material
+                    break;  // Break the loop to render only the nearest object
+                }
+            }
             point(glm::vec2(x, y), pixelColor);
         }
     }
@@ -239,19 +271,15 @@ int main(int argc, char* argv[]) {
                         break;
                 }
             }
-
-
         }
 
         // Clear the screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-
         render();
 
         // Present the renderer
         SDL_RenderPresent(renderer);
-
         frameCount++;
 
         // Calculate and display FPS
@@ -270,4 +298,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
