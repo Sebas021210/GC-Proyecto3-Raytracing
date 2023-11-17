@@ -12,7 +12,7 @@
 #include "light.h"
 #include "camera.h"
 
-const int SCREEN_WIDTH = 800;
+const int SCREEN_WIDTH = 1200;
 const int SCREEN_HEIGHT = 600;
 const float ASPECT_RATIO = static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT);
 const int MAX_RECURSION = 3;
@@ -56,8 +56,21 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
         }
     }
 
+    float yPosition = rayDirection.y;
+
+    // Colors for the sky, grass, and dirt
+    Color dirtColor(139, 69, 19);
+    Color grassColor(0, 100, 0);
+    Color skyColor(173, 216, 230);
+
     if (!intersect.isIntersecting || recursion == MAX_RECURSION) {
-        return Color(173, 216, 230);
+        if (yPosition < -0.35f) {
+            return dirtColor;
+        } else if (yPosition < -0.1f) {
+            return grassColor;
+        } else {
+            return skyColor;
+        }
     }
 
     glm::vec3 lightDir = glm::normalize(light.position - intersect.point);
@@ -89,6 +102,7 @@ Color castRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const s
     return color;
 }
 
+//setUp cube
 void setUp() {
     Material stoneMaterial = {
             Color(125, 125, 125),
@@ -104,16 +118,16 @@ void setUp() {
             0.7,
             0.3,
             10.0f,
-            0.0f,
+            0.1f,
             0.0f
     };
 
-    Material dirtMaterial = {
-            Color(139, 69, 19),
-            0.6,
-            0.2,
-            5.0f,
-            0.0f,
+    Material brickMaterial = {
+            Color(100, 0, 0),
+            0.8,
+            0.3,
+            15.0f,
+            0.1f,
             0.0f
     };
 
@@ -122,58 +136,88 @@ void setUp() {
             0.7,
             0.3,
             20.0f,
-            0.0f,
+            0.1f,
             0.0f
     };
 
     Material glassMaterial = {
-            Color(173, 216, 230),
+            Color(255, 255, 255),
             0.0f,
-            0.1f,
-            50.0f,
-            0.5f,
-            0.9f
+            10.0f,
+            1425.0f,
+            0.2f,
+            1.0f
     };
-
-    Material brickMaterial = {
-            Color(178, 34, 34),
-            0.8,
-            0.3,
-            15.0f,
-            0.0f,
-            0.0f
-    };
-
-    //objects.push_back(new Cube(glm::vec3(0.0f, -1.0f, 0.0f), 1.0f, stoneMaterial, "stone"));
-    //objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, grassMaterial, "grass"));
-    //objects.push_back(new Cube(glm::vec3(1.5f, 0.0f, 0.0f), 1.0f, dirtMaterial, "dirt"));
-    //objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -1.5f), 1.0f, woodMaterial, "wood"));
-    //objects.push_back(new Cube(glm::vec3(1.5f, 0.0f, -1.5f), 1.0f, glassMaterial, "glass"));
-    //objects.push_back(new Cube(glm::vec3(2.5f, 0.0f, -1.5f), 1.0f, brickMaterial, "brick"));
 
     //Tree
-    objects.push_back(new Cube(glm::vec3(2.0f, -1.0f, -1.5f), 1.0f, woodMaterial, "wood"));
-    objects.push_back(new Cube(glm::vec3(2.0f, -0.5f, -1.5f), 1.0f, woodMaterial, "wood"));
-    objects.push_back(new Cube(glm::vec3(2.0f, 0.0f, -1.5f), 1.0f, woodMaterial, "wood"));
-    objects.push_back(new Cube(glm::vec3(2.0f, 0.5f, -1.5f), 1.0f, woodMaterial, "wood"));
-    objects.push_back(new Cube(glm::vec3(2.0f, 1.5f, -1.5f), 1.0f, grassMaterial, "grass"));
-    objects.push_back(new Cube(glm::vec3(2.0f, 2.0f, -1.5f), 1.0f, grassMaterial, "grass"));
-    objects.push_back(new Cube(glm::vec3(1.3f, 1.5f, -1.5f), 1.0f, grassMaterial, "grass"));
-    objects.push_back(new Cube(glm::vec3(2.7f, 1.5f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(4.0f, -1.0f, -1.5f), 1.0f, woodMaterial, "wood"));
+    objects.push_back(new Cube(glm::vec3(4.0f, 0.0f, -1.5f), 1.0f, woodMaterial, "wood"));
+    objects.push_back(new Cube(glm::vec3(4.0f, 1.0f, -1.5f), 1.0f, woodMaterial, "wood"));
+    objects.push_back(new Cube(glm::vec3(4.0f, 2.0f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(3.0f, 2.0f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(5.0f, 2.0f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(4.0f, 3.0f, -1.5f), 1.0f, grassMaterial, "grass"));
 
     //House
+    //X1 Y1
+    objects.push_back(new Cube(glm::vec3(1.0f, -1.0f, -1.5f), 1.0f, grassMaterial, "grass"));
+    objects.push_back(new Cube(glm::vec3(0.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
     objects.push_back(new Cube(glm::vec3(-1.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    objects.push_back(new Cube(glm::vec3(-2.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    //objects.push_back(new Cube(glm::vec3(-3.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    objects.push_back(new Cube(glm::vec3(-4.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    //objects.push_back(new Cube(glm::vec3(-3.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    objects.push_back(new Cube(glm::vec3(-4.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    //objects.push_back(new Cube(glm::vec3(-3.0f, -2.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, -1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-4.0f, -1.0f, -1.5f), 1.0f, grassMaterial, "grass"));
+
+    //X2 Y1
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -1.5f), 1.0f, glassMaterial, "glass"));
+    //objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 0.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+    //X3 Y1
+    objects.push_back(new Cube(glm::vec3(-0.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
     objects.push_back(new Cube(glm::vec3(-1.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
     objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
     objects.push_back(new Cube(glm::vec3(-3.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
-    objects.push_back(new Cube(glm::vec3(-4.0f, 1.0f, -1.5f), 1.0f, stoneMaterial, "stone"));
+
+    //X2 Y1
+    objects.push_back(new Cube(glm::vec3(0.0f, -1.0f, -2.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, -1.0f, -2.5f), 1.0f, stoneMaterial, "stone"));
+    //X2 Y2
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -2.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 0.0f, -2.5f), 1.0f, stoneMaterial, "stone"));
+    //X2 Y3
+    objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -2.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 1.0f, -2.5f), 1.0f, stoneMaterial, "stone"));
+
+    //X3 Y1
+    objects.push_back(new Cube(glm::vec3(0.0f, -1.0f, -3.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, -1.0f, -3.5f), 1.0f, stoneMaterial, "stone"));
+    //X3 Y2
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -3.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 0.0f, -3.5f), 1.0f, stoneMaterial, "stone"));
+    //X3 Y3
+    objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -3.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 1.0f, -3.5f), 1.0f, stoneMaterial, "stone"));
+
+    //X4 Y1
+    objects.push_back(new Cube(glm::vec3(0.0f, -1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-1.0f, -1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-2.0f, -1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, -1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    //X4 Y2
+    objects.push_back(new Cube(glm::vec3(0.0f, 0.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 0.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 0.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 0.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    //X4 Y3
+    objects.push_back(new Cube(glm::vec3(0.0f, 1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-1.0f, 1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-2.0f, 1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+    objects.push_back(new Cube(glm::vec3(-3.0f, 1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
+
+    //Chimney
+    objects.push_back(new Cube(glm::vec3(-3.8f, 1.5f, -1.5f), 0.6f, brickMaterial, "brick"));
+    objects.push_back(new Cube(glm::vec3(-3.8f, 2.0f, -1.5f), 0.6f, brickMaterial, "brick"));
+
 }
 
 void render() {
@@ -193,17 +237,7 @@ void render() {
                     cameraDir + cameraX * screenX + cameraY * screenY
             );
 
-            // Original ray casting
             Color pixelColor = castRay(camera.position, rayDirection);
-
-            // New code for rendering the nearest object
-            for (const auto& object : objects) {
-                Intersect intersect = object->rayIntersect(camera.position, rayDirection);
-                if (intersect.isIntersecting) {
-                    pixelColor = object->material.diffuse;  // Use the cube's material
-                    break;  // Break the loop to render only the nearest object
-                }
-            }
             point(glm::vec2(x, y), pixelColor);
         }
     }
