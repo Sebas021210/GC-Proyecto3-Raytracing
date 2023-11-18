@@ -110,7 +110,7 @@ void setUp() {
             0.5,
             25.0f,
             0.1f,
-            0.0f
+            0.0f,
     };
 
     Material grassMaterial = {
@@ -215,9 +215,8 @@ void setUp() {
     objects.push_back(new Cube(glm::vec3(-3.0f, 1.0f, -4.5f), 1.0f, stoneMaterial, "stone"));
 
     //Chimney
-    objects.push_back(new Cube(glm::vec3(-3.8f, 1.5f, -1.5f), 0.6f, brickMaterial, "brick"));
-    objects.push_back(new Cube(glm::vec3(-3.8f, 2.0f, -1.5f), 0.6f, brickMaterial, "brick"));
-
+    objects.push_back(new Cube(glm::vec3(-3.2f, 1.7f, -1.5f), 0.6f, brickMaterial, "brick"));
+    objects.push_back(new Cube(glm::vec3(-3.2f, 2.0f, -1.5f), 0.6f, brickMaterial, "brick"));
 }
 
 void render() {
